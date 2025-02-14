@@ -2,27 +2,25 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Memória temporária para armazenar informações (depois podemos melhorar isso)
-memory = {"messages": []}
-
-@app.route("/", methods=["GET"])
+@app.route('/')
 def home():
-    return "Luiz 1.0 está online!", 200
+    return "Luiz 1.0 está online!"
 
-@app.route("/send_message", methods=["POST"])
-def send_message():
-    data = request.json
-    if not data or "message" not in data:
-        return jsonify({"error": "Mensagem inválida"}), 400
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.get_json()
+    user_message = data.get("message", "").lower()
+    
+    respostas = {
+        "oi": "Olá! Como posso te ajudar?",
+        "quem é você?": "Sou o Luiz 1.0, sua IA assistente!",
+        "como você funciona?": "Eu respondo mensagens e aprendo com o tempo.",
+        "adeus": "Até mais! Sempre que precisar, estou aqui."
+    }
+    
+    resposta = respostas.get(user_message, "Desculpe, não entendi. Pode repetir?")
+    
+    return jsonify({"response": resposta})
 
-    message = data["message"]
-    memory["messages"].append(message)
-
-    return jsonify({"response": f"Recebi sua mensagem: {message}"}), 200
-
-@app.route("/history", methods=["GET"])
-def history():
-    return jsonify(memory), 200
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+if __name__ == '__main__':
+    app.run(debug=True)
